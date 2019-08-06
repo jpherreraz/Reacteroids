@@ -17,11 +17,12 @@ export default class Ship {
     this.lastShot = 0;
     this.create = args.create;
     this.onDie = args.onDie;
+    this.name = args.name;
   }
 
   destroy(){
     this.delete = true;
-    this.onDie();
+    // this.onDie();
 
     // Explode
     for (let i = 0; i < 60; i++) {
@@ -73,19 +74,38 @@ export default class Ship {
 
   render(state){
     // Controls
-    if(state.keys.up){
-      this.accelerate(1);
+    if (this.name == 'ship1'){
+      if(state.keys.up){
+        this.accelerate(1);
+      }
+      if(state.keys.left){
+        this.rotate('LEFT');
+      }
+      if(state.keys.right){
+        this.rotate('RIGHT');
+      }
+      if(state.keys.space && Date.now() - this.lastShot > 300){
+        const bullet = new Bullet({ship: this});
+        this.create(bullet, 'bullets');
+        this.lastShot = Date.now();
+      }
     }
-    if(state.keys.left){
-      this.rotate('LEFT');
-    }
-    if(state.keys.right){
-      this.rotate('RIGHT');
-    }
-    if(state.keys.space && Date.now() - this.lastShot > 300){
-      const bullet = new Bullet({ship: this});
-      this.create(bullet, 'bullets');
-      this.lastShot = Date.now();
+    if (this.name == 'ship2'){
+      if(state.keys2.up){
+        this.accelerate(1);
+      }
+      if(state.keys2.left){
+        this.rotate('LEFT');
+      }
+      if(state.keys2.right){
+        this.rotate('RIGHT');
+      }
+
+      if(state.keys2.shift && Date.now() - this.lastShot > 300){
+        const bullet = new Bullet({ship: this});
+        this.create(bullet, 'bullets');
+        this.lastShot = Date.now();
+      }
     }
 
     // Move

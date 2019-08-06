@@ -10,7 +10,8 @@ const KEY = {
   A: 65,
   D: 68,
   W: 87,
-  SPACE: 32
+  SPACE: 32,
+  SHIFT: 16,
 };
 
 export class Reacteroids extends Component {
@@ -29,6 +30,13 @@ export class Reacteroids extends Component {
         up    : 0,
         down  : 0,
         space : 0,
+      },
+      keys2 : {
+        left  : 0,
+        right : 0,
+        up    : 0,
+        down  : 0,
+        shift : 0,
       },
       asteroidCount: 3,
       currentScore: 0,
@@ -53,12 +61,20 @@ export class Reacteroids extends Component {
 
   handleKeys(value, e){
     let keys = this.state.keys;
-    if(e.keyCode === KEY.LEFT   || e.keyCode === KEY.A) keys.left  = value;
-    if(e.keyCode === KEY.RIGHT  || e.keyCode === KEY.D) keys.right = value;
-    if(e.keyCode === KEY.UP     || e.keyCode === KEY.W) keys.up    = value;
+    if(e.keyCode === KEY.LEFT) keys.left  = value;
+    if(e.keyCode === KEY.RIGHT) keys.right = value;
+    if(e.keyCode === KEY.UP) keys.up    = value;
     if(e.keyCode === KEY.SPACE) keys.space = value;
     this.setState({
       keys : keys
+    });
+    let keys2 = this.state.keys2;
+    if(e.keyCode === KEY.A) keys2.left  = value;
+    if(e.keyCode === KEY.D) keys2.right = value;
+    if(e.keyCode === KEY.W) keys2.up    = value;
+    if(e.keyCode === KEY.SHIFT) keys2.shift = value;
+    this.setState({
+      keys2 : keys2
     });
   }
 
@@ -82,6 +98,7 @@ export class Reacteroids extends Component {
   update() {
     const context = this.state.context;
     const keys = this.state.keys;
+    const keys2 = this.state.keys2;
     const ship = this.ship[0];
 
     context.save();
@@ -132,8 +149,9 @@ export class Reacteroids extends Component {
 
     // Make ship
     let ship = new Ship({
+      name: 'ship1',
       position: {
-        x: this.state.screen.width/2,
+        x: this.state.screen.width/3*2,
         y: this.state.screen.height/2
       },
       create: this.createObject.bind(this),
@@ -141,12 +159,25 @@ export class Reacteroids extends Component {
     });
     this.createObject(ship, 'ship');
 
+    let ship2 = new Ship({
+      name: 'ship2',
+      position: {
+        x: this.state.screen.width/3,
+        y: this.state.screen.height/2
+      },
+      create: this.createObject.bind(this),
+      onDie: this.gameOver.bind(this)
+    });
+    this.createObject(ship2, 'ship');
+
     // Make asteroids
     this.asteroids = [];
     this.generateAsteroids(this.state.asteroidCount)
   }
 
   gameOver(){
+    console.log('Ship dies.')
+
     this.setState({
       inGame: false,
     });
@@ -157,7 +188,9 @@ export class Reacteroids extends Component {
         topScore: this.state.currentScore,
       });
       localStorage['topscore'] = this.state.currentScore;
+
     }
+
   }
 
   generateAsteroids(howMany){
@@ -186,6 +219,12 @@ export class Reacteroids extends Component {
     for (let item of items) {
       if (item.delete) {
         this[group].splice(index, 1);
+        if(group == 'ship'){
+          console.log('Updating ships.')
+          if (this.ship.length == 0){
+            this.gameOver()
+          }
+        }
       }else{
         items[index].render(this.state);
       }
